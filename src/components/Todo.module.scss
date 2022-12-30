@@ -1,0 +1,32 @@
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  margin-top: 60px;
+}
+
+li {
+  span {
+    display: inline-block;
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+}
+
+label {
+  display: block;
+
+  input {
+    font-size: 1.5em;
+    width: 100%;
+  }
+}
+
+.done {
+  text-decoration: line-through white;
+}
+
+.deleted {
+  font-weight: bold;
+  color: red;
+}
