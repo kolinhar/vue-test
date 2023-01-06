@@ -5,31 +5,9 @@ export interface Task {
   delete: boolean;
 }
 
-export class TaskList {
+export class TaskList extends Array {
   constructor(task: Task[] | Task) {
+    super();
     return Array.isArray(task) ? task : [task];
   }
 }
-
-export const Tasks = new TaskList([
-  {
-    id: 1,
-    text: 'premier élément de la liste',
-    done: false,
-    delete: false,
-  },
-  {
-    id: 2,
-    text: 'voir tous les marvel et les DC comics',
-    done: true,
-    delete: false,
-  },
-  { id: 3, text: 'apprendre à dessiner', done: true, delete: true },
-  {
-    id: 4,
-    text: 'avant-dernier élément de la liste',
-    done: false,
-    delete: false,
-  },
-  { id: 5, text: 'dernier élémentde la liste', done: false, delete: true },
-]);

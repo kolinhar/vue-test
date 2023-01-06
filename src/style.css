@@ -58,6 +58,7 @@ footer {
 #app {
   margin: 0 auto;
   flex: 1;
+  min-width: 500px;
 }
 
 .blink {

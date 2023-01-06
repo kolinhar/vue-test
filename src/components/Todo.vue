@@ -1,38 +1,30 @@
-<script type="module">
+<script type="module" lang="ts">
 import { defineComponent, ref, computed } from 'vue';
+import { TaskList } from '../assets/constantes';
+import { addTodo, getDatas } from './Todo.helpers';
 import List from './List.vue';
-import { Tasks } from '../assets/constantes.ts';
 import styles from './Todo.module.scss';
+import { useTodoStore } from '../stores/Store.todo';
+import { storeToRefs } from 'pinia';
 
 export default defineComponent({
   components: {
     List,
   },
-  setup() {
+  async setup() {
     const title = 'Titre de la page';
     const todoTitle = 'Trucs à faire';
-    const deleteTitle = ref('Trucs supprimés');
+    const deleteTitle = 'Trucs supprimés';
     const doneTitle = 'Trucs terminés';
-    const todos = ref(Tasks);
-    const taskText = ref("continuer d'écrire des histoires");
+    // const todos = ref(new TaskList([]));
+    const taskText = ref('');
 
-    /* current task list */
-    const filteredTodos = computed(() =>
-      todos.value.filter((x) => !x.done && !x.delete)
-    );
-    /* done task list */
-    const doneTodos = computed(() =>
-      todos.value.filter((x) => x.done && !x.delete)
-    );
-    /* deleted tasks list */
-    const deleteTodos = computed(() => todos.value.filter((x) => x.delete));
-
-    const inputChange = (e) => {
-      taskText.value = e.target.value;
-    };
+    // todos.value = await getDatas();
+    const todoStore = useTodoStore();
+    todoStore.fill();
 
     /* handle enter key */
-    const onKeyUpHandler = (e) => {
+    const onKeyUpHandler = (e: any) => {
       if (e.keyCode === 13) {
         inputAdd();
       }
@@ -40,36 +32,33 @@ export default defineComponent({
 
     /* add a new task */
     const inputAdd = () => {
-      const lastElt = [...todos.value].pop();
       const text = taskText.value.trim();
 
       if (text === '') {
         return;
       }
 
-      todos.value.push({
-        id: lastElt.id + 1,
-        text: taskText.value.trim(),
-        done: false,
-        delete: false,
-      });
-
-      taskText.value = '';
+      todoStore.create(text)
+        .then(() => {
+          taskText.value = '';
+        })
+        .catch(console.error);
     };
+
+    const inputChange = (e: Event) => {
+      taskText.value = (e.target as HTMLInputElement).value;
+    }
 
     return {
       title,
       todoTitle,
-      filteredTodos,
       styles,
-      doneTodos,
-      deleteTodos,
       deleteTitle,
       doneTitle,
-      inputAdd,
-      // inputChange,
       taskText,
       onKeyUpHandler,
+      todoStore,
+      inputChange,
     };
   },
 });
@@ -82,33 +71,22 @@ export default defineComponent({
     <section>
       <label>
         Nouvelle tache
-        <!-- 
-          
-          @input="inputChange"
-         -->
-        <input
-          type="text"
-          :value="taskText"
-          @model="taskText"
-          @keyup="onKeyUpHandler"
-          placeholder="Ecrire ici"
-        />
-        <!-- <button @click="inputAdd()">OK</button> -->
+        <input type="text" :value="taskText" @input="inputChange" @keyup="onKeyUpHandler" placeholder="Ecrire ici" />
       </label>
     </section>
 
     <section>
-      <list :title="todoTitle" :list="filteredTodos" />
+      <list :title="todoTitle" :list="todoStore.getCurrentTasks" />
     </section>
 
-    <section v-if="doneTodos.length !== 0">
+    <section v-if="todoStore.getDoneTasks.length !== 0">
       <hr />
-      <list :title="doneTitle" :list="doneTodos" />
+      <list :title="doneTitle" :list="todoStore.getDoneTasks" />
     </section>
 
-    <section v-if="deleteTodos.length !== 0">
+    <section v-if="todoStore.getDeleteTasks.length !== 0">
       <hr />
-      <list :title="deleteTitle" :list="deleteTodos" />
+      <list :title="deleteTitle" :list="todoStore.getDeleteTasks" />
     </section>
   </article>
 </template>
